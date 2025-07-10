@@ -1,0 +1,17 @@
+{
+    "name": "nexophp/db",
+    "type": "library",
+    "description": "",
+    "keywords": ["php"],
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "sunkangchina",
+            "email":"68103403@qq.com"
+        }
+    ],
+    "require": {  
+    }, 
+    "autoload": {  
+    }
+}
