@@ -736,7 +736,7 @@ function db_del($table, $where, $don_run_action = false)
 {
     do_action("db_table.$table", $table);
     //删除数据前
-    if (db_can_run_action()&& !$don_run_action) {
+    if (db_can_run_action() && !$don_run_action) {
         do_action("db_del.$table.before", $where);
     }
     if (!$where) {
