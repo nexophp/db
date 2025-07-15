@@ -729,12 +729,14 @@ function db_raw($raw)
     return \Medoo\Medoo::raw($raw);
 }
 
-//删除
-function db_del($table, $where)
+/**
+ * 删除
+ */
+function db_del($table, $where, $don_run_action = false)
 {
     do_action("db_table.$table", $table);
     //删除数据前
-    if (db_can_run_action()) {
+    if (db_can_run_action()&& !$don_run_action) {
         do_action("db_del.$table.before", $where);
     }
     if (!$where) {
@@ -745,7 +747,7 @@ function db_del($table, $where)
     }
     $data = medoo_db()->delete(get_db_table_name($table), $where);
     $count = $data->rowCount();
-    if (db_can_run_action() && $count > 0) {
+    if (db_can_run_action() && !$don_run_action && $count > 0) {
         do_action("db_del.$table.after", $where);
     }
     return $count;
