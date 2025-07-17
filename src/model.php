@@ -1,7 +1,13 @@
 <?php
 
+/**
+ * Model
+ * @author sunkangchina <68103403@qq.com>
+ * @license MIT <https://mit-license.org/>
+ * @date 2025
+ */
 
-class model
+class DbModel
 {
     protected $table   = '';
     protected $primary = 'id';

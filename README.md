@@ -456,7 +456,7 @@ https://github.com/vlucas/valitron
  
 namespace model; 
 
-class user extends \model{ 
+class User extends \DbModel{ 
     protected $table = 'users';
 
     protected $field = [

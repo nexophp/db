@@ -1,4 +1,10 @@
 <?php
+/**
+ * 数据库操作函数
+ * @author sunkangchina <68103403@qq.com>
+ * @license MIT <https://mit-license.org/>
+ * @date 2025
+ */
 
 /**
  *  对数据库操作的封装

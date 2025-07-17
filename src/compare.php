@@ -2,6 +2,13 @@
 
 /**
  * 数据库结构比较并生成差量SQL
+ * @author sunkangchina <68103403@qq.com>
+ * @license MIT <https://mit-license.org/>
+ * @date 2025
+ */
+
+/**
+ * 数据库结构比较并生成差量SQL
  * @param $db_compare_config 配置 ['host'=>'', 'name'=>'','user'=>'','pwd'=>'',  'port'=>3306]
  * @param $need_compare_dbs  需要比较的数据库 ['db_name'=>'','db_host'=>'','db_user'=>'','db_pwd'=>'',  'db_port'=>3306]
  * @param bool $is_like 是否like比较

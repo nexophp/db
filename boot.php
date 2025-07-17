@@ -1,5 +1,10 @@
 <?php
-
+/**
+ * 数据库类
+ * @author sunkangchina <68103403@qq.com>
+ * @license MIT <https://mit-license.org/>
+ * @date 2025
+ */
 include __DIR__ . '/src/Medoo.php';
 include __DIR__ . '/src/function.php';
 include __DIR__ . '/src/model.php';
