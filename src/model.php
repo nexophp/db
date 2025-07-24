@@ -34,8 +34,6 @@ class DbModel
     protected $validate = [];
     public function __construct()
     {
-        $lang = 'zh-cn';
-        \lib\Validate::lang($lang);
         $this->init();
     }
     /**
@@ -48,15 +46,15 @@ class DbModel
     /**
      * INIT
      */
-    protected function init() {}
+    public function init() {}
     /**
      * 查寻前
      */
-    public function before_find(&$where) {}
+    public function beforeFind(&$where) {}
     /**
      * 查寻后
      */
-    public function after_find(&$data)
+    public function afterFind(&$data)
     {
         $this->ignore_after_find_hook[$this->table . $data['id']] = true;
     }
@@ -80,14 +78,14 @@ class DbModel
     /**
      * 仅用于分于
      */
-    public function reset_relation()
+    public function resetRelation()
     {
         $this->ignore_relation = true;
     }
     /**
      * 处理关联
      */
-    public function do_relation(&$data)
+    public function doRelation(&$data)
     {
         $_relation_with = $this->_relation_with;
         if (!$this->ignore_relation) {
@@ -135,7 +133,7 @@ class DbModel
     /**
      * 查寻后
      */
-    public function after_find_inner(&$data)
+    public function afterFindInner(&$data)
     {
         $ln = $this->field_ln;
         if ($ln) {
@@ -151,7 +149,7 @@ class DbModel
     /**
      * 写入数据前
      */
-    public function before_insert(&$data)
+    public function beforeInsert(&$data)
     {
         $validate = $this->validate_add ?: $this->validate;
         if ($this->field && $validate) {
@@ -182,12 +180,12 @@ class DbModel
     /**
      * 写入数据后
      */
-    public function after_insert($id) {}
+    public function afterInsert($id) {}
 
     /**
      * 更新数据前
      */
-    public function before_update(&$data, $where)
+    public function beforeUpdate(&$data, $where)
     {
         $id = $where[$this->primary];
         $validate = $this->validate_edit ?: $this->validate;
@@ -219,22 +217,16 @@ class DbModel
     /**
      * 更新数据后
      */
-    public function after_update($row_count, $data, $where) {}
+    public function afterUpdate($row_count, $data, $where) {}
     /**
      * 删除前
      */
-    public function before_del(&$where) {}
+    public function beforeDel(&$where) {}
     /**
      * 删除后
      */
-    public function after_del($where) {}
-    /**
-     * 忽略HOOK 更新
-     */
-    public function f_update($data, $where = '')
-    {
-        return $this->update($data, $where, true);
-    }
+    public function afterDel($where) {}
+
     /**
      * 更新数据
      */
@@ -245,24 +237,13 @@ class DbModel
         }
         $this->_where($where);
         if (!$ignore_hook) {
-            $this->before_update($data, $where);
+            $this->beforeUpdate($data, $where);
         }
-        $data_db = db_allow($this->table, $data);
-        if (!$data_db) {
-            return false;
-        }
-        $row_count = db_update($this->table, $data_db, $where);
+        $row_count = db_update($this->table, $data, $where);
         if (!$ignore_hook) {
-            $this->after_update($row_count, $data, $where);
+            $this->afterUpdate($row_count, $data, $where);
         }
         return $row_count;
-    }
-    /**
-     * 忽略HOOK 写入数据
-     */
-    public function f_insert($data)
-    {
-        return $this->insert($data, true);
     }
     /**
      * 写入数据
@@ -281,13 +262,6 @@ class DbModel
             $this->after_insert($id);
         }
         return $id;
-    }
-    /**
-     * 忽略HOOK 批量写入数据
-     */
-    public function f_inserts($data)
-    {
-        return $this->inserts($data, true);
     }
     /**
      * 批量写入数据
@@ -311,13 +285,6 @@ class DbModel
         return true;
     }
     /**
-     * 忽略HOOK 分页
-     */
-    public function f_pager($join, $columns = null, $where = null)
-    {
-        return $this->pager($join, $columns, $where, true);
-    }
-    /**
      * 分页
      */
     public function pager($join, $columns = null, $where = null, $ignore_hook = false)
@@ -331,14 +298,14 @@ class DbModel
         $all =  db_pager($this->table, $join, $columns, $where);
         if ($all['data']) {
             foreach ($all['data'] as &$v) {
-                $this->do_relation($v);
-                $this->after_find_inner($v);
+                $this->doRelation($v);
+                $this->afterFindInner($v);
                 if (!$ignore_hook) {
-                    $this->after_find($v);
+                    $this->afterFind($v);
                 }
             }
         }
-        $this->reset_relation();
+        $this->resetRelation();
         return $all;
     }
     /**
@@ -384,14 +351,14 @@ class DbModel
     /**
      * 忽略HOOK 删除数据
      */
-    public function f_delete($where)
+    public function forceDelete($where)
     {
         return $this->del($where, true);
     }
     /**
      * 忽略HOOK 删除数据
      */
-    public function f_del($where)
+    public function forceDel($where)
     {
         return $this->del($where, true);
     }
@@ -409,14 +376,14 @@ class DbModel
     {
         $this->_where($where);
         if (!$ignore_hook) {
-            $this->before_del($where);
+            $this->beforeDel($where);
         }
         if (!$where) {
             return false;
         }
         $res = db_del($this->table, $where);
         if (!$ignore_hook) {
-            $this->after_del($where);
+            $this->afterDel($where);
         }
         return $res;
     }
@@ -432,36 +399,29 @@ class DbModel
     /**
      * 查寻一条记录
      */
-    public function find_one($where = '', $ignore_hook = false)
+    public function findOne($where = '', $ignore_hook = false)
     {
         return $this->find($where, 1, false, $ignore_hook);
     }
     /**
      * 根据ID查寻
      */
-    public function find_by_id($id, $ignore_hook = false)
+    public function findById($id, $ignore_hook = false)
     {
         $data = self::$_find_by_id[$id];
         if ($data) {
             return $data;
         } else {
-            self::$_find_by_id[$id] = $data = $this->find_one($id, $ignore_hook = false);
+            self::$_find_by_id[$id] = $data = $this->findOne($id, $ignore_hook = false);
             return $data;
         }
     }
     /**
      * 查寻多条记录
      */
-    public function find_all($where = '', $ignore_hook = false)
+    public function findAll($where = '', $ignore_hook = false)
     {
         return $this->find($where, '', false, $ignore_hook);
-    }
-    /**
-     * 忽略HOOK 删除数据
-     */
-    public function f_find($where = '', $limit = '', $use_select = false)
-    {
-        return $this->find($where, $limit, $use_select, true);
     }
     /**
      * 查寻记录
@@ -469,34 +429,13 @@ class DbModel
     public function find($where = '', $limit = '', $use_select = false, $ignore_hook = false)
     {
         $data = $this->_find($where, $limit, $use_select, $ignore_hook);
-        $this->reset_relation();
+        $this->resetRelation();
         return $data;
     }
     /**
      * 查寻记录
      */
-    public function find_cache($where = '', $limit = '', $use_select = false, $ignore_hook = false)
-    {
-        $uni = "";
-        if (is_array($where)) {
-            $uni = md5(json_encode($where));
-        } else {
-            $uni = $where;
-        }
-        $uni = md5($uni . $limit . 'a' . $use_select . 'b' . $ignore_hook);
-        $key = 'model:cache:' . $this->table . ":" . $uni;
-        $res = self::$_cache_find[$key];
-        if ($res) {
-            return $res;
-        }
-        $res = $this->find($where, $limit, $use_select, $ignore_hook);
-        self::$_cache_find[$key] = $res;
-        return $res;
-    }
-    /**
-     * 查寻记录
-     */
-    public function _find($where = '', $limit = '', $use_select = false, $ignore_hook = false)
+    protected function _find($where = '', $limit = '', $use_select = false, $ignore_hook = false)
     {
         $select = "*";
         if ($where && is_array($where)) {
@@ -510,7 +449,7 @@ class DbModel
         if ($limit) {
             $where['LIMIT'] = $limit;
         }
-        $this->before_find($where);
+        $this->beforeFind($where);
         $ln = $this->field_ln;
         if ($use_select) {
             foreach ($where as $k => $v) {
@@ -546,8 +485,8 @@ class DbModel
                 $res = db_get_one($this->table, $select, $where);
             }
             if (is_array($res)) {
-                $this->do_relation($res);
-                $this->after_find_inner($res);
+                $this->doRelation($res);
+                $this->afterFindInner($res);
                 if (!$ignore_hook) {
                     if (is_array($res) && !$this->ignore_after_find_hook[$this->table . $res['id']]) {
                         $this->after_find($res);
@@ -562,11 +501,11 @@ class DbModel
             }
             foreach ($res as &$v) {
                 if (is_array($v)) {
-                    $this->do_relation($v);
-                    $this->after_find_inner($v);
+                    $this->doRelation($v);
+                    $this->afterFindInner($v);
                     if (!$ignore_hook) {
                         if (is_array($v) && !$this->ignore_after_find_hook[$this->table . $v['id']]) {
-                            $this->after_find($v);
+                            $this->afterFind($v);
                         }
                     }
                 }
@@ -604,7 +543,7 @@ class DbModel
     /**
      * 向上取递归
      * 如当前分类是3，将返回 123所有的值
-     * $arr = get_tree_up($v['catalog_id'],true);
+     * $arr = treeUp($v['catalog_id'],true);
      * foreach($arr as $vv){
      *   $title[] = $vv['title'];
      * }
@@ -613,33 +552,33 @@ class DbModel
      * 2  1
      * 3  2
      */
-    public function get_tree_up($id, $is_frist = true)
+    public function treeUp($id, $is_frist = true)
     {
         static $_data;
         if ($is_frist) {
             $_data = [];
         }
-        $end = $this->f_find(['id' => $id], 1);
+        $end = $this->find(['id' => $id], 1);
         $_data[] = $end;
         if ($end['pid'] > 0) {
-            $this->get_tree_up($end['pid'], false);
+            $this->treeUp($end['pid'], false);
         }
         return array_reverse($_data);
     }
     /**
      * 递归删除
      */
-    public function tree_del($id = '', $where = [])
+    public function treeDel($id = '', $where = [])
     {
         if ($where) {
-            $catalog = $this->f_find($where);
+            $catalog = $this->find($where);
         }
         $all = array_to_tree($catalog, $pk = 'id', $pid = 'pid', $child = 'children', $id);
         if ($id) {
             $this->delete(['id' => $id]);
         }
         if ($all) {
-            $this->_loop_del_tree($all);
+            $this->loopDeleteTree($all);
         }
     }
     /**
@@ -654,30 +593,30 @@ class DbModel
     /**
      * 向下递归
      */
-    public function get_tree_id($id, $where = [], $get_field = 'id')
+    public function getTreeId($id, $where = [], $get_field = 'id')
     {
-        $list = $this->f_find($where);
+        $list = $this->find($where);
         $tree = array_to_tree($list, $pk = 'id', $pid = 'pid', $child = 'children', $id);
-        $tree[] = $this->_find(['id' => $id], 1, false, true);
-        $all = $this->_loop_tree_deep_inner($tree, $get_field, $is_frist = true);
+        $tree[] = $this->find(['id' => $id], 1, false, true);
+        $all = $this->loopTreeDownInner($tree, $get_field, $is_frist = true);
         return $all;
     }
     /**
      * 内部实现
      */
-    public function _loop_del_tree($list)
+    protected function loopDeleteTree($list)
     {
         foreach ($list as $v) {
             $this->delete(['id' => $v['id']]);
             if ($v['children']) {
-                $this->_loop_del_tree($v['children']);
+                $this->loopDeleteTree($v['children']);
             }
         }
     }
     /**
      * 内部实现
      */
-    public function _loop_tree_deep_inner($all, $get_field, $is_frist = false)
+    protected function loopTreeDownInner($all, $get_field, $is_frist = false)
     {
         static $_data;
         if ($is_frist) {
@@ -686,7 +625,7 @@ class DbModel
         foreach ($all as $v) {
             $_data[] = $v[$get_field];
             if ($v['children']) {
-                $this->_loop_tree_deep_inner($v['children'], $get_field);
+                $this->loopTreeDownInner($v['children'], $get_field);
             }
         }
         return $_data;

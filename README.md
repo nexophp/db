@@ -506,45 +506,45 @@ model事件，注意使用`parent::`
     /**
     * 查寻前
     */
-    public function before_find(&$where){
+    public function beforeFind(&$where){
     }
     /**
     * 查寻后
     */
-    public function after_find(&$data){
+    public function afterFind(&$data){
     }
     
     /**
     * 写入数据前
     */
-    public function before_insert(&$data){
+    public function beforeInsert(&$data){
     }
     /**
     * 写入数据后
     */
-    public function after_insert($id){
+    public function afterInsert($id){
     }
     
     /**
     * 更新数据前
     */
-    public function before_update(&$data,$where){
+    public function beforeUpdate(&$data,$where){
     }
     /**
     * 更新数据后
     */
-    public function after_update($row_count,$data,$where){
+    public function afterUpdate($row_count,$data,$where){
     }
     /**
     * 删除前
     */
-    public function before_del(&$where)
+    public function beforeDelete(&$where)
     {        
     }
     /**
     * 删除后
     */
-    public function after_del($where)
+    public function afterDelete($where)
     {        
     }
 ~~~
@@ -581,7 +581,7 @@ $model->find(['name'=>'t'])  //返回所有记录
 关联定义
 
 ~~~
-class invoice_detail extends \core\sys\model\base
+class invoice_detail extends \DbModel
 {
     protected $table = 'invoice_detail';
     protected $has_one = [
@@ -591,7 +591,7 @@ class invoice_detail extends \core\sys\model\base
         'product_info' => [invoice_product::class,'product_num','product_num',['LIMIT' => 2]]
     ];
 
-    public function after_find(&$data)
+    public function afterFind(&$data)
     {
         unset($data['id']);
     }
@@ -605,7 +605,7 @@ class invoice extends \core\sys\model\base
     ];
 }
 
-class invoice_product extends \core\sys\model\base
+class invoice_product extends \DbModel
 {
     protected $table = 'invoice_products';
 }
