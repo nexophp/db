@@ -45,7 +45,7 @@ class DbModel
     /**
      * INIT
      */
-    public function init() {}
+    protected function init() {}
     /**
      * 查寻前
      */
