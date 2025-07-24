@@ -21,8 +21,7 @@ class DbModel
     protected $has_many;
     public $ignore_relation = true;
     public $_relation_with = [];
-    public static $init;
-    public static $_cache_find;
+    public static $init; 
     /**
      * 字段映射 名字=>数据库中字段名
      * 仅支持find方法
@@ -221,11 +220,11 @@ class DbModel
     /**
      * 删除前
      */
-    public function beforeDel(&$where) {}
+    public function beforeDelete(&$where) {}
     /**
      * 删除后
      */
-    public function afterDel($where) {}
+    public function afterDelete($where) {}
 
     /**
      * 更新数据
@@ -376,14 +375,14 @@ class DbModel
     {
         $this->_where($where);
         if (!$ignore_hook) {
-            $this->beforeDel($where);
+            $this->beforeDelete($where);
         }
         if (!$where) {
             return false;
         }
         $res = db_del($this->table, $where);
         if (!$ignore_hook) {
-            $this->afterDel($where);
+            $this->afterDelete($where);
         }
         return $res;
     }
