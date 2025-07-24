@@ -412,6 +412,9 @@ function db_select($table, $join = "*", $columns = null, $where = null)
 function db_insert($table, $data = [], $don_run_action = false)
 {
     $data = db_allow($table, $data);
+    if(!$data){
+        return;
+    }
     do_action("db_table.$table", $table);
     foreach ($data as $k => $v) {
         if (substr($k, 0, 1) == "_") {
@@ -469,6 +472,9 @@ function db_insert($table, $data = [], $don_run_action = false)
 function db_update($table, $data = [], $where = [], $don_run_action = false)
 {
     $data = db_allow($table, $data);
+    if(!$data){
+        return;
+    }
     do_action("db_table.$table", $table);
     if (!db_can_run_update()) {
         exit('从库禁止运行update操作');
