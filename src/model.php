@@ -275,13 +275,10 @@ class DbModel
     /**
      * 批量写入数据
      */
-    public function inserts($data, $ignore_hook = false)
+    public function inserts($data)
     {
         $new_data = [];
         foreach ($data as &$v) {
-            if (!$ignore_hook) {
-                $this->before_insert($v);
-            }
             $allow_data = db_allow($this->table, $v);
             if ($allow_data) {
                 $new_data[] = $allow_data;
