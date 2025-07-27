@@ -180,7 +180,7 @@ class DbModel
      * 写入数据后
      */
     public function afterInsert($id) {}
-
+    public function beforeSave(&$data) {}
     /**
      * 更新数据前
      */
@@ -216,7 +216,8 @@ class DbModel
     /**
      * 更新数据后
      */
-    public function afterUpdate($row_count, $data, $where) {}
+    public function afterUpdate( $data, $where) {}
+    public function afterSave($data) {}
     /**
      * 删除前
      */
@@ -224,7 +225,7 @@ class DbModel
     /**
      * 删除后
      */
-    public function afterDelete($where) {}
+    public function afterDelete($where) {} 
 
     /**
      * 更新数据
@@ -241,7 +242,7 @@ class DbModel
                 $new_data['id'] = $where['id'];
             }
             $this->beforeUpdate($new_data, $where);
-            $this->beforeSave($new_data, $where);
+            $this->beforeSave($new_data);
         }
         $row_count = db_update($this->table, $data, $where);
         if (!$ignore_hook) {
