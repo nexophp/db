@@ -234,13 +234,19 @@ class DbModel
         if (!$where) {
             return false;
         }
+        $new_data = [];
         $this->_where($where);
         if (!$ignore_hook) {
-            $this->beforeUpdate($data, $where);
+            if($where['id']){
+                $new_data['id'] = $where['id'];
+            }
+            $this->beforeUpdate($new_data, $where);
+            $this->beforeSave($new_data, $where);
         }
         $row_count = db_update($this->table, $data, $where);
         if (!$ignore_hook) {
-            $this->afterUpdate($row_count, $data, $where);
+            $this->afterUpdate($new_data, $where);
+            $this->afterSave($new_data, $where);
         }
         return $row_count;
     }
@@ -250,7 +256,8 @@ class DbModel
     public function insert($data, $ignore_hook = false)
     {
         if (!$ignore_hook) {
-            $this->before_insert($data);
+            $this->beforeInsert($data);
+            $this->beforeSave($data);
         }
         $data_db = db_allow($this->table, $data);
         if (!$data_db) {
@@ -258,7 +265,9 @@ class DbModel
         }
         $id = db_insert($this->table, $data_db);
         if (!$ignore_hook) {
-            $this->after_insert($id);
+            $this->afterInsert($id);
+            $data_db['id'] = $id;
+            $this->afterSave($data_db);
         }
         return $id;
     }
