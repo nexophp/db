@@ -497,7 +497,7 @@ class DbModel
                 $this->afterFindInner($res);
                 if (!$ignore_hook) {
                     if (is_array($res) && !$this->ignore_after_find_hook[$this->table . $res['id']]) {
-                        $this->after_find($res);
+                        $this->afterFind($res);
                     }
                 }
             }
