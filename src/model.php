@@ -246,8 +246,8 @@ class DbModel
         }
         $row_count = db_update($this->table, $data, $where);
         if (!$ignore_hook) {
-            $this->afterUpdate($new_data, $where);
-            $this->afterSave($new_data, $where);
+            $this->afterUpdate($data, $where);
+            $this->afterSave($data, $where);
         }
         return $row_count;
     }
@@ -267,8 +267,8 @@ class DbModel
         $id = db_insert($this->table, $data_db);
         if (!$ignore_hook) {
             $this->afterInsert($id);
-            $data_db['id'] = $id;
-            $this->afterSave($data_db);
+            $data['id'] = $id;
+            $this->afterSave($data);
         }
         return $id;
     }
