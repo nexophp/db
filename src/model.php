@@ -236,18 +236,18 @@ class DbModel
             return false;
         } 
         $this->_where($where);
+        $new_data = $data;
         if (!$ignore_hook) {
             if($where['id']){
-                $data['id'] = $where['id'];
-                unset($data['id']);
+                $new_data['id'] = $where['id']; 
             }
             $this->beforeUpdate($data, $where);
             $this->beforeSave($data);
         } 
         $row_count = db_update($this->table, $data, $where);
         if (!$ignore_hook) {
-            $this->afterUpdate($data, $where);
-            $this->afterSave($data, $where);
+            $this->afterUpdate($new_data, $where);
+            $this->afterSave($new_data, $where);
         }
         return $row_count;
     }
