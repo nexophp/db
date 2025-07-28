@@ -471,13 +471,21 @@ function db_insert($table, $data = [], $don_run_action = false)
  */
 function db_update($table, $data = [], $where = [], $don_run_action = false)
 {
+    if(!$where){
+        json_error(['msg' => lang('更新条件不能为空')]);
+    } 
+    if(is_array($where)){
+        if(!array_filter($where)){
+            json_error(['msg' => lang('更新条件不能为空')]);
+        }
+    }
     $data = db_allow($table, $data);
     if(!$data){
         return;
     }
     do_action("db_table.$table", $table);
     if (!db_can_run_update()) {
-        exit('从库禁止运行update操作');
+        json_error(['msg' => lang('从库禁止运行update操作')]);
     }
     global $_db_where;
     $_db_where = $where;
