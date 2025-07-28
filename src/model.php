@@ -588,15 +588,6 @@ class DbModel
         }
     }
     /**
-     * 数组转成tree
-     */
-    public function array_to_tree($new_list, $pk = 'id', $pid = 'pid', $child = 'children', $root = 0, $my_id = '')
-    {
-        $list = array_to_tree($new_list, $pk, $pid, $child, $root, $my_id);
-        $list = array_values($list);
-        return $list;
-    }
-    /**
      * 向下递归
      */
     public function getTreeId($id, $where = [], $get_field = 'id')
