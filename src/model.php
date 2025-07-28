@@ -180,7 +180,7 @@ class DbModel
      * 写入数据后
      */
     public function afterInsert($id) {}
-
+    public function beforeSave(&$data) {}
     /**
      * 更新数据前
      */
@@ -216,7 +216,8 @@ class DbModel
     /**
      * 更新数据后
      */
-    public function afterUpdate($row_count, $data, $where) {}
+    public function afterUpdate( $data, $where) {}
+    public function afterSave($data) {}
     /**
      * 删除前
      */
@@ -224,7 +225,7 @@ class DbModel
     /**
      * 删除后
      */
-    public function afterDelete($where) {}
+    public function afterDelete($where) {} 
 
     /**
      * 更新数据
@@ -233,14 +234,20 @@ class DbModel
     {
         if (!$where) {
             return false;
-        }
+        } 
         $this->_where($where);
+        $new_data = $data;
         if (!$ignore_hook) {
+            if($where['id']){
+                $new_data['id'] = $where['id']; 
+            }
             $this->beforeUpdate($data, $where);
-        }
+            $this->beforeSave($data);
+        } 
         $row_count = db_update($this->table, $data, $where);
         if (!$ignore_hook) {
-            $this->afterUpdate($row_count, $data, $where);
+            $this->afterUpdate($new_data, $where);
+            $this->afterSave($new_data, $where);
         }
         return $row_count;
     }
@@ -250,7 +257,8 @@ class DbModel
     public function insert($data, $ignore_hook = false)
     {
         if (!$ignore_hook) {
-            $this->before_insert($data);
+            $this->beforeInsert($data);
+            $this->beforeSave($data);
         }
         $data_db = db_allow($this->table, $data);
         if (!$data_db) {
@@ -258,20 +266,19 @@ class DbModel
         }
         $id = db_insert($this->table, $data_db);
         if (!$ignore_hook) {
-            $this->after_insert($id);
+            $this->afterInsert($id);
+            $data['id'] = $id;
+            $this->afterSave($data);
         }
         return $id;
     }
     /**
      * 批量写入数据
      */
-    public function inserts($data, $ignore_hook = false)
+    public function inserts($data)
     {
         $new_data = [];
         foreach ($data as &$v) {
-            if (!$ignore_hook) {
-                $this->before_insert($v);
-            }
             $allow_data = db_allow($this->table, $v);
             if ($allow_data) {
                 $new_data[] = $allow_data;
@@ -488,7 +495,7 @@ class DbModel
                 $this->afterFindInner($res);
                 if (!$ignore_hook) {
                     if (is_array($res) && !$this->ignore_after_find_hook[$this->table . $res['id']]) {
-                        $this->after_find($res);
+                        $this->afterFind($res);
                     }
                 }
             }
@@ -569,10 +576,16 @@ class DbModel
      */
     public function treeDel($id = '', $where = [])
     {
+        $new_list = [];
         if ($where) {
-            $catalog = $this->find($where);
+            $catalog = $this->find($where); 
+            foreach($catalog as $v){
+                $new_list[] = $v->data;
+            }  
         }
-        $all = array_to_tree($catalog, $pk = 'id', $pid = 'pid', $child = 'children', $id);
+        if($new_list){
+            $all = array_to_tree($new_list, $pk = 'id', $pid = 'pid', $child = 'children', $id);
+        }
         if ($id) {
             $this->delete(['id' => $id]);
         }
@@ -581,22 +594,17 @@ class DbModel
         }
     }
     /**
-     * 数组转成tree
-     */
-    public function array_to_tree($new_list, $pk = 'id', $pid = 'pid', $child = 'children', $root = 0, $my_id = '')
-    {
-        $list = array_to_tree($new_list, $pk, $pid, $child, $root, $my_id);
-        $list = array_values($list);
-        return $list;
-    }
-    /**
      * 向下递归
      */
     public function getTreeId($id, $where = [], $get_field = 'id')
     {
-        $list = $this->find($where);
-        $tree = array_to_tree($list, $pk = 'id', $pid = 'pid', $child = 'children', $id);
-        $tree[] = $this->find(['id' => $id], 1, false, true);
+        $list = $this->find($where); 
+        $new_list = [];
+        foreach($list as $v){
+            $new_list[] = $v->data;
+        }  
+        $tree = array_to_tree($new_list, $pk = 'id', $pid = 'pid', $child = 'children', $id); 
+        $tree[] = $this->find(['id' => $id], 1, false, true)->data?:[];
         $all = $this->loopTreeDownInner($tree, $get_field, $is_frist = true);
         return $all;
     }
