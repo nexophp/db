@@ -434,9 +434,6 @@ class DbModel
      */
     public function find($where = '', $limit = '', $use_select = false, $ignore_hook = false)
     {
-        if(is_array($where) && $where['id'] && count($where) == 1){
-            $limit = 1;
-        }
         $data = $this->_find($where, $limit, $use_select, $ignore_hook);
         $this->resetRelation();
         return $data;
