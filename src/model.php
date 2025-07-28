@@ -576,10 +576,16 @@ class DbModel
      */
     public function treeDel($id = '', $where = [])
     {
+        $new_list = [];
         if ($where) {
-            $catalog = $this->find($where);
+            $catalog = $this->find($where); 
+            foreach($catalog as $v){
+                $new_list[] = $v->data;
+            }  
         }
-        $all = array_to_tree($catalog, $pk = 'id', $pid = 'pid', $child = 'children', $id);
+        if($new_list){
+            $all = array_to_tree($new_list, $pk = 'id', $pid = 'pid', $child = 'children', $id);
+        }
         if ($id) {
             $this->delete(['id' => $id]);
         }
@@ -592,9 +598,13 @@ class DbModel
      */
     public function getTreeId($id, $where = [], $get_field = 'id')
     {
-        $list = $this->find($where);
-        $tree = array_to_tree($list, $pk = 'id', $pid = 'pid', $child = 'children', $id);
-        $tree[] = $this->find(['id' => $id], 1, false, true);
+        $list = $this->find($where); 
+        $new_list = [];
+        foreach($list as $v){
+            $new_list[] = $v->data;
+        }  
+        $tree = array_to_tree($new_list, $pk = 'id', $pid = 'pid', $child = 'children', $id); 
+        $tree[] = $this->find(['id' => $id], 1, false, true)->data?:[];
         $all = $this->loopTreeDownInner($tree, $get_field, $is_frist = true);
         return $all;
     }
