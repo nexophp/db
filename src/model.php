@@ -304,11 +304,7 @@ class DbModel
         $all =  db_pager($this->table, $join, $columns, $where);
         if ($all['data']) {
             foreach ($all['data'] as &$v) {
-                $this->doRelation($v);
-                $this->afterFindInner($v);
-                if (!$ignore_hook) {
-                    $this->afterFind($v);
-                }
+                $this->doRelation($v); 
             }
         }
         $this->resetRelation();
@@ -491,13 +487,7 @@ class DbModel
                 $res = db_get_one($this->table, $select, $where);
             }
             if (is_array($res)) {
-                $this->doRelation($res);
-                $this->afterFindInner($res);
-                if (!$ignore_hook) {
-                    if (is_array($res) && !$this->ignore_after_find_hook[$this->table . $res['id']]) {
-                        $this->afterFind($res);
-                    }
-                }
+                $this->doRelation($res);  
             }
         } else {
             if ($use_select) {
@@ -507,13 +497,7 @@ class DbModel
             }
             foreach ($res as &$v) {
                 if (is_array($v)) {
-                    $this->doRelation($v);
-                    $this->afterFindInner($v);
-                    if (!$ignore_hook) {
-                        if (is_array($v) && !$this->ignore_after_find_hook[$this->table . $v['id']]) {
-                            $this->afterFind($v);
-                        }
-                    }
+                    $this->doRelation($v); 
                 }
             }
         }
